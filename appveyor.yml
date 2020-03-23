@@ -14,7 +14,7 @@ configuration:
   - Release
 
 cache:
-  - c:/Users/appveyor/.sw -> appveyor.yml
+  - c:/Users/tesseract-7n3c5/.sw -> appveyor.yml
 
 before_build:
   - curl -fsS -L -o dl.zip https://github.com/SoftwareNetwork/binaries/raw/master/sw-master-windows-client.zip
