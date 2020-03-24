@@ -12,7 +12,6 @@ void build(Solution &s)
 
         libtesseract += cpp14;
 
-        libtesseract += "include/.*"_rr;
         libtesseract += "src/.*"_rr;
         libtesseract -= "src/lstm/.*\\.cc"_rr;
         libtesseract -= "src/training/.*"_rr;
@@ -43,27 +42,7 @@ void build(Solution &s)
         {
             libtesseract += "__SSE4_1__"_def;
             libtesseract.CompileOptions.push_back("-arch:AVX2");
-
-            // openmp
-            //if (libtesseract.getOptions()["openmp"] == "true")
-            if (0)
-            {
-                if (libtesseract.getCompilerType() == CompilerType::MSVC)
-                    libtesseract.CompileOptions.push_back("-openmp");
-                else
-                    libtesseract.CompileOptions.push_back("-fopenmp");
-                libtesseract += "_OPENMP=201107"_def;
-                if (libtesseract.getBuildSettings().Native.ConfigurationType == ConfigurationType::Debug)
-                    libtesseract += "vcompd.lib"_slib;
-                else
-                    libtesseract += "vcomp.lib"_slib;
-            }
         }
-
-        auto win_or_mingw =
-            libtesseract.getBuildSettings().TargetOS.Type == OSType::Windows ||
-            libtesseract.getBuildSettings().TargetOS.Type == OSType::Mingw
-            ;
 
         // check fma flags
         libtesseract -= "src/arch/dotproductfma.cpp";
@@ -74,9 +53,9 @@ void build(Solution &s)
             libtesseract["src/arch/dotproductsse.cpp"].args.push_back("-msse4.1");
             libtesseract["src/arch/intsimdmatrixsse.cpp"].args.push_back("-msse4.1");
             libtesseract["src/arch/intsimdmatrixavx2.cpp"].args.push_back("-mavx2");
-        }
-        if (!win_or_mingw)
+
             libtesseract += "pthread"_slib;
+        }
 
         libtesseract.Public += "HAVE_CONFIG_H"_d;
         libtesseract.Public += "_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS=1"_d;
@@ -87,7 +66,7 @@ void build(Solution &s)
         libtesseract.Public += "org.sw.demo.danbloomberg.leptonica"_dep;
         libtesseract.Public += "org.sw.demo.libarchive.libarchive"_dep;
 
-        if (win_or_mingw)
+        if (libtesseract.getBuildSettings().TargetOS.Type == OSType::Windows)
         {
             libtesseract.Public += "ws2_32.lib"_slib;
             libtesseract.Protected += "NOMINMAX"_def;
